@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Greeting Card Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      text-align: center;
+      background: #eaf7f1;
+      padding: 20px;
+    }
+
+    .logo {
+      width: 100px;
+      margin-bottom: 5px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    input {
+      padding: 10px;
+      font-size: 16px;
+      min-width: 200px;
+      text-align: center;
+      border: 2px solid #007672;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px 15px;
+      font-size: 14px;
+      cursor: pointer;
+      background-color: #007672;
+      color: white;
+      border: 2px solid #007672;
+      border-radius: 5px;
+      transition: 0.3s ease;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #009688;
+      transform: scale(1.05);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    canvas {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <img src="jadaw.png" alt="Jadaw Logo" class="logo">
+
+  <p style="color: #007672; font-size: 15px; margin-top: 5px;">
+    صمّم بطاقتك العيدية، وشارك الفرح
+  </p>
+
+  <div class="input-group">
+    <input type="text" id="nameInput" placeholder="Enter your name">
+    <button onclick="generateCard('eid-card.jpg')">Preview Card 1</button>
+    <button onclick="generateCard('eeid-card.jpg')">Preview Card 2</button>
+    <button id="downloadBtn" onclick="downloadCard()" disabled>Download</button>
+  </div>
+
+  <canvas id="cardCanvas" width="1080" height="1350"></canvas>
+
+  <!-- Footer signature -->
+  <p style="font-size: 12px; color: #555; text-align: left; margin-top: 30px;">
+    Developed by Jada's IT @2025
+  </p>
+
+  <script>
+    const canvas = document.getElementById('cardCanvas');
+    const ctx = canvas.getContext('2d');
+    let lastUsedImage = null;
+
+    function generateCard(imageSrc) {
+      const name = document.getElementById('nameInput').value.trim();
+      if (!name) {
+        alert("Please enter your name.");
+        return;
+      }
+
+      // رسالة مؤقتة
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#007672";
+      ctx.font = "28px 'Cairo'";
+      ctx.textAlign = "center";
+      ctx.fillText("جالسين نجهز بطاقتك... لا تعيد بدونها 🎉", canvas.width / 2, canvas.height / 2);
+
+      const image = new Image();
+      image.src = imageSrc;
+      lastUsedImage = imageSrc;
+
+      image.onload = () => drawCard(image, name);
+      if (image.complete) drawCard(image, name);
+
+      document.getElementById('downloadBtn').disabled = false;
+    }
+
+    function drawCard(image, name) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+      const maxWidth = 260;
+      const centerX = 540;
+      let fontSize = 30;
+
+      ctx.font = `${fontSize}px 'Cairo'`;
+      let textWidth = ctx.measureText(name).width;
+
+      while (textWidth > maxWidth && fontSize > 10) {
+        fontSize -= 1;
+        ctx.font = `${fontSize}px 'Cairo'`;
+        textWidth = ctx.measureText(name).width;
+      }
+
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+      const y = 934;
+
+      ctx.fillText(name, centerX, y);
+    }
+
+    function downloadCard() {
+      const link = document.createElement('a');
+      const filename = lastUsedImage === 'eeid-card.jpg' ? 'Card2.png' : 'Card1.png';
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+  </script>
+
+</body>
+</html>
